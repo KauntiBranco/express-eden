@@ -40,8 +40,11 @@ app.post('/login', async (req, res) => { //pegar data do front para verificar co
     const result = await connection.query`select * from Clientes where Email=${identifier} and PalavraPasse=${password}`; //checar credenciais
     console.log(identifier);
     console.log(password);
+    console.log(result);
+
     if (result.recordset.length > 0) { //verificar se tem um resultado
-      res.send('ok')
+      res.send(result.recordset[0])
+      
     } else {
       res.status(401).send('credenciais inválidas')
     }
@@ -53,20 +56,21 @@ app.post('/login', async (req, res) => { //pegar data do front para verificar co
   }
 
   finally {
-    connection.close();
+    await connection.close();
   }
 })
 
 app.get("/quartos", async (req, res) => {
   try {
     await connection.connect();
-    const result = await connection.query`select NumQuarto, Nome, Descricao, Preco, Imagem
+    const result = await connection.query`select NumQuarto, Quartos.TipoQuarto, Descricao, Preco, Imagem
 from Quartos 
 inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
     res.json(result.recordset)
   }
-
+  
   catch (err) {
+    console.log(res)
     console.error(err)
     res.status(500).send('internal server error')
   }
