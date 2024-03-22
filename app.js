@@ -87,6 +87,7 @@ app.post("/reservar", async (req, res) => {
       const result = await connection.query`insert into QuartosReservas(Id_Reserva, NumQuarto) values () `
   }
   catch {
+    console.log(res)
     console.err(err)
     res.status(500).send('internal server error')
   }
