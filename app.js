@@ -32,7 +32,6 @@ app.post('/login', async (req, res) => { //pegar data do front para verificar co
   console.log(req);
   console.log("pass is " + password)
   console.log("identifier is " + identifier)
-  //res.send('RETURN VALUE GOES HERE!')
 
   try {
     await connection.connect(); //conectar com a database
@@ -43,7 +42,7 @@ app.post('/login', async (req, res) => { //pegar data do front para verificar co
     console.log(result);
 
     if (result.recordset.length > 0) { //verificar se tem um resultado
-      res.send(result.recordset[0])
+      res.send(result.recordset[0]) //return value
       
     } else {
       res.status(401).send('credenciais inválidas')
@@ -81,11 +80,15 @@ inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
 }
 )
 
-app.post("/reservar", async (req, res) => {
+app.post("/resevar", async (req, res) => {
+  const {numQuarto, dataEntrada, dataSaida, nPessoas} = req.body
+  console.log(req)
   try {
       await connection.connect();
-      const result = await connection.query`insert into QuartosReservas(Id_Reserva, NumQuarto) values () `
-  }
+      const result1 = await connection.query`select * from QuartosReservas where`
+      const result2 = await connection.query`insert into QuartosReservas(Id_Reserva, NumQuarto) values () `
+      res.json(result.recordset)
+    }
   catch {
     console.log(res)
     console.err(err)
