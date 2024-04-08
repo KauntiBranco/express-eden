@@ -43,7 +43,7 @@ app.post('/login', async (req, res) => { //pegar data do front para verificar co
 
     if (result.recordset.length > 0) { //verificar se tem um resultado
       res.send(result.recordset[0]) //return value
-      
+
     } else {
       res.status(401).send('credenciais inválidas')
     }
@@ -67,7 +67,7 @@ from Quartos
 inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
     res.json(result.recordset)
   }
-  
+
   catch (err) {
     console.log(res)
     console.error(err)
@@ -81,15 +81,21 @@ inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
 )
 
 app.post("/resevar", async (req, res) => {
-  const {numQuarto, dataEntrada, dataSaida, nPessoas} = req.body
+  const { numQuarto, dataEntrada, dataSaida, nPessoas } = req.body
   console.log(req)
   try {
-      await connection.connect();
-      const result1 = await connection.query`select * from QuartosReservas where`
-      const result2 = await connection.query`insert into QuartosReservas(Id_Reserva, NumQuarto) values () `
-      res.json(result.recordset)
+    await connection.connect();
+    const result1 = await connection.query`select * from Reservas where Numquarto = ${numQuarto}` //adicionar as datas depois de testar
+
+    if (result1.recordset.length = 0) {
+      const result2 = await connection.query`insert into Reservas(Id_Reserva, DataEntrada, DataSaida, CodCli, NumPessoas) 
+      values`
+    const result3 = await connection.query`insert into QuartosReservas(Id_Reserva, NumQuarto) values () `
     }
+    res.json(result.recordset)
+  }
   catch {
+    res.status(401).send('credenciais inválidas')
     console.log(res)
     console.err(err)
     res.status(500).send('internal server error')
