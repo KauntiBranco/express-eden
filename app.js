@@ -80,19 +80,24 @@ inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
 }
 )
 
-app.post("/resevar", async (req, res) => {
+app.post("/reservar", async (req, res) => {
   const { numQuarto, dataEntrada, dataSaida, nPessoas, CodCli } = req.body
   console.log(req)
   try {
     await connection.connect();
-    const result1 = await connection.query`select * from QuartosReservas where Numquarto = ${numQuarto}` //adicionar as datas depois de testar
+    console.log("primeiro")
+    console.log(numQuarto)
+    const result1 = await connection.query`select * from QuartosReservas where Numquarto = ${numQuarto} and DataInicial ` //adicionar as datas depois de testar
+    console.log(result1.recordset.length)
+    if (result1.recordset.length == 0) {
+      console.log("if successful")
+  //verificar se as datas são aceitaveis
+      const result2 = await connection.query`insert into Reservas (CodCli, NumPessoas, DataEntrada, DataSaida) values 
+      (${CodCli},${nPessoas}, ${dataEntrada}, ${dataSaida})`
 
-    if (result1.recordset.length = 0) {
-      console.log
-      const result2 = await connection.query`insert into Reservas(CodCli, NumPessoas) values (${CodCli},${nPessoas})`
-      //const result3 = await connection.query`insert into QuartosReservas(NumQuarto) values (${numQuarto}) `
+      const result3 = await connection.query`insert into QuartosReservas(NumQuarto, DataEntrada, DataSaida) 
+      values (${numQuarto},${dataEntrada},${dataSaida}) `
       }
-    res.json(result.recordset)
   }
 
   catch {
