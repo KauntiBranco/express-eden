@@ -1,25 +1,24 @@
 import express from "express";
-import { connection } from "../services/db.service.js"
+import { getAllBookings } from "../services/bookings.service.js";
 
 export const bookingsRouter = express.Router();
 
 bookingsRouter.get("/", async (req, res) => {
-  const { numQuarto, dataEntrada, dataSaida, nPessoas, CodCli } = req.body
-  console.log(req)
+  console.log("sdhfhsdfiu")
   try {
-  // get all rooms
+    const bookings = await getAllBookings()
+    console.log(bookings)
+    res.send("ok")
   }
-  catch {
+  catch(err) {
+    console.log(err)
     res.status(500).send('internal server error')
   }
 
-  finally {
-    await connection.close(); }
 })
 
 bookingsRouter.post("/reservar", async (req, res) => {
   const { numQuarto, dataEntrada, dataSaida, nPessoas, CodCli } = req.body
-  console.log(req)
   try {
     await connection.connect();
     console.log("primeiro")

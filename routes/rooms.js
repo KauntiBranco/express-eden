@@ -1,5 +1,4 @@
 import express from "express";
-import { connection } from "../services/db.service.js";
 
 export const roomsRouter = express.Router();
 
