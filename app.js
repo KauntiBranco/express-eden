@@ -1,10 +1,11 @@
 const express = require('express');
-const app = express();
-const port = 4000;
 const cors = require('cors');
-const bodyparser = require('body-parser');
+const bodyParser = require('body-parser');
 const mssql = require('mssql/msnodesqlv8');
 const bcrypt = require('bcrypt');
+
+const app = express();
+const port = 4000;
 
 
 const connection = new mssql.ConnectionPool({
@@ -14,16 +15,16 @@ const connection = new mssql.ConnectionPool({
   options: {
     trustedConnection: true
   }
-}); "server=(localdb)\\MSSQLlocaldb"
+});
 
 app.use(cors({
   origin: "*"
 }));
 
-app.use(bodyparser.urlencoded({
+app.use(bodyParser.urlencoded({
   extended: false
 }));
-app.use(bodyparser.json());
+app.use(bodyParser.json());
 
 app.post('/login', async (req, res) => { //pegar data do front para verificar com a data da base de dados
   console.log("login called")
@@ -88,37 +89,41 @@ app.post("/reservar", async (req, res) => {
     await connection.connect();
     console.log(numQuarto)
 
+    var dataOK = 0 //maybe fazer um inseert para verificar as datas, se  
+
     if (dataEntrada < dataSaida) {
       console.log("data aceitável por enquanto")
       const result1 = await connection.query`select * from QuartosReservas where Numquarto = ${numQuarto} ` //adicionar as datas depois de testar
       console.log("resultados = " + result1.recordset.length)
 
-      if (result1.recordset.length != 0) { //é ==, testing
+      if (result1.recordset.length == 0) { //==, também vai ser mudado consoante o query de verificar a data
         console.log("if successful")
-
-        //verificar se as datas são aceitaveis
         const result2 = await connection.query`insert into Reservas (CodCli, NumPessoas, DataEntrada, DataSaida) 
         values (${CodCli},${nPessoas}, ${dataEntrada}, ${dataSaida})`
 
         const result3 = await connection.query`insert into QuartosReservas(NumQuarto, DataEntrada, DataSaida) 
         values (${numQuarto},${dataEntrada},${dataSaida}) `
 
-        const precoQuarto = await connection.query(`select TipoQuarto.Preco from Quartos 
+        const result4 = await connection.query(`select TipoQuarto.Preco from Quartos 
         inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto
         where Quartos.NumQuarto = ${numQuarto}`)
-        console.log(precoQuarto.recordsets + numQuarto + " preco do quarto")
-        
-        const result4 = await connection.query`insert into Billing(Bill, CodCli) 
-        values (${precoQuarto}, ${CodCli}) `
+
+        let { Preco } = result4.recordset[0];
+        console.log(Preco)
+
+        const result5 = await connection.query`insert into Billing(Bill, CodCli) 
+        values (${Preco}, ${CodCli}) `
+        console.log
+      }
+      else { //se já houverem reservas nesse id, verificar as datas
+
       }
     }
   }
 
   catch {
     res.status(401).send('credenciais inválidas')
-    console.log(res)
-    //console.err(err)
-    res.status(500).send('internal server error')
+
   }
 
   finally {
@@ -130,4 +135,3 @@ app.post("/reservar", async (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
-
