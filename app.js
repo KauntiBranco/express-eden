@@ -131,7 +131,7 @@ app.post("/reservar", async (req, res) => {
   }
 })
 
-app.get("/quartos", async (req, res) => {
+app.get("/register", async (req, res) => { 
   try {
     await connection.connect();
     const result = await connection.query`select NumQuarto, Quartos.TipoQuarto, Descricao, Preco, Imagem
