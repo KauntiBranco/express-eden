@@ -42,14 +42,16 @@ app.post('/login', async (req, res) => { //pegar data do front para verificar co
     console.log(password);
     console.log(result);
 
-    if (result.recordset.length > 0) { //verificar se tem um resultado
-      res.send(result.recordset[0]) //return value
-
-    } else {
-      res.status(401).send('credenciais inválidas')
+    if (result.recordset.length > 0) {
+      const user = result.recordset[0];
+      const passwordMatch = await bcrypt.compare(password, user.PalavraPasse); // Compare hashed password
+      if (passwordMatch) {
+        res.send(user);
+      } else {
+        res.status(401).send('Credenciais inválidas');
+      }
     }
   }
-
   catch (err) {
     console.error(err)
     res.status(500).send('internal server error')
@@ -123,7 +125,6 @@ app.post("/reservar", async (req, res) => {
 
   catch {
     res.status(401).send('credenciais inválidas')
-
   }
 
   finally {
@@ -131,12 +132,10 @@ app.post("/reservar", async (req, res) => {
   }
 })
 
-app.get("/register", async (req, res) => { 
+app.get("/getReserves", async (req, res) => {
   try {
     await connection.connect();
-    const result = await connection.query`select NumQuarto, Quartos.TipoQuarto, Descricao, Preco, Imagem
-from Quartos 
-inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
+    const result = await connection.query`select numQuarto, dataEntrada, dataSaida, nPessoas from reservas`
     res.json(result.recordset)
   }
 
@@ -151,6 +150,7 @@ inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
   }
 }
 )
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
