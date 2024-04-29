@@ -13,7 +13,7 @@ const connection = new mssql.ConnectionPool({
   server: "DESKTOP-FURIRO", //"(localdb)\\MSSQLlocaldb" 
   driver: "msnodesqlv8",
   options: {
-    trustedConnection: true, 
+    trustedConnection: true,
   }
 });
 
@@ -104,31 +104,31 @@ app.post("/reservar", async (req, res) => {
   try {
     await connection.connect();
 
-    if (dataEntrada < dataSaida) { 
+    if (dataEntrada < dataSaida) {
       console.log("data aceitável por enquanto")
-      const result1 = await connection.query`select * from QuartosReservas where Numquarto = ${numQuarto} ` 
+      const result1 = await connection.query`select * from QuartosReservas where Numquarto = ${numQuarto} `
       console.log("resultados = " + result1.recordset.length)
 
       //if (result1.recordset.length == 0) { //==, também vai ser mudado consoante o query de verificar a data
-        console.log("if successful")
-        const result2 = await connection.query`insert into Reservas (CodCli, NumPessoas, DataEntrada, DataSaida) 
+      console.log("if successful")
+      const result2 = await connection.query`insert into Reservas (CodCli, NumPessoas, DataEntrada, DataSaida) 
         values (${CodCli},${nPessoas}, ${dataEntrada}, ${dataSaida})`
 
-        const result3 = await connection.query`insert into QuartosReservas(NumQuarto, DataEntrada, DataSaida) 
+      const result3 = await connection.query`insert into QuartosReservas(NumQuarto, DataEntrada, DataSaida) 
         values (${numQuarto},${dataEntrada},${dataSaida}) `
 
-        const result4 = await connection.query(`select TipoQuarto.Preco from Quartos 
+      const result4 = await connection.query(`select TipoQuarto.Preco from Quartos 
         inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto
         where Quartos.NumQuarto = ${numQuarto}`)
 
-        let { Preco } = result4.recordset[0];
-        console.log(Preco)
+      let { Preco } = result4.recordset[0];
+      console.log(Preco)
 
-        const result5 = await connection.query`insert into Billing(Bill, CodCli) 
+      const result5 = await connection.query`insert into Billing(Bill, CodCli) 
         values (${Preco}, ${CodCli}) `
-        console.log("reservado com sucesso")
+      console.log("reservado com sucesso")
       //}
-      
+
     }
   }
 
@@ -142,10 +142,20 @@ app.post("/reservar", async (req, res) => {
 })
 
 app.get("/getReserves", async (req, res) => {
+  const { CodCli } = req.body
+  console.log(CodCli)
   try {
     await connection.connect();
-    const result = await connection.query`select numQuarto, dataEntrada, dataSaida, nPessoas from reservas`
-    res.json(result.recordset)
+
+    //const result = await connection.query`select numQuarto, dataEntrada, dataSaida, nPessoas from reservas where ${CodCli} = CodCli`
+
+    const resultN = await connection.query`select QuartosReservas.Id_Reserva,QuartosReservas.NumQuarto,Reservas.DataEntrada, Reservas.DataSaida  
+    from Reservas
+    inner join QuartosReservas on Reservas.Id_Reserva = QuartosReservas.Id_Reserva
+   where CodCli = ${CodCli} 
+`
+    console.log(resultN.recordset)
+    res.json(resultN.recordset)
   }
 
   catch (err) {
