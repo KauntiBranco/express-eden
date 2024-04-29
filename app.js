@@ -10,16 +10,17 @@ const port = 4000;
 
 const connection = new mssql.ConnectionPool({
   database: "Hotel Eden",
-  server: "(localdb)\\MSSQLlocaldb",
+  server: "DESKTOP-FURIRO", //"(localdb)\\MSSQLlocaldb" 
   driver: "msnodesqlv8",
   options: {
-    trustedConnection: true
+    trustedConnection: true, 
   }
 });
 
-app.use(cors({
+/* app.use(cors({
   origin: "*"
-}));
+})); */
+app.use(cors());
 
 app.use(bodyParser.urlencoded({
   extended: false
@@ -66,7 +67,7 @@ app.post('/register', async (req, res) => { //pegar data do front para verificar
   }
 
   catch (err) {
-    console.error(err)
+    //console.error(err)
     res.status(500).send('internal server error')
   }
 
@@ -85,7 +86,7 @@ inner join TipoQuarto on TipoQuarto.TipoQuarto = Quartos.TipoQuarto`
   }
 
   catch (err) {
-    console.log(res)
+    //console.log(res)
     console.error(err)
     res.status(500).send('internal server error')
   }
@@ -103,12 +104,12 @@ app.post("/reservar", async (req, res) => {
   try {
     await connection.connect();
 
-    if (dataEntrada < dataSaida) {
+    if (dataEntrada < dataSaida) { 
       console.log("data aceitável por enquanto")
-      const result1 = await connection.query`select * from QuartosReservas where Numquarto = ${numQuarto} ` //adicionar as datas depois de testar
+      const result1 = await connection.query`select * from QuartosReservas where Numquarto = ${numQuarto} ` 
       console.log("resultados = " + result1.recordset.length)
 
-      if (result1.recordset.length == 0) { //==, também vai ser mudado consoante o query de verificar a data
+      //if (result1.recordset.length == 0) { //==, também vai ser mudado consoante o query de verificar a data
         console.log("if successful")
         const result2 = await connection.query`insert into Reservas (CodCli, NumPessoas, DataEntrada, DataSaida) 
         values (${CodCli},${nPessoas}, ${dataEntrada}, ${dataSaida})`
@@ -125,8 +126,9 @@ app.post("/reservar", async (req, res) => {
 
         const result5 = await connection.query`insert into Billing(Bill, CodCli) 
         values (${Preco}, ${CodCli}) `
-        console.log
-      }
+        console.log("reservado com sucesso")
+      //}
+      
     }
   }
 
